@@ -135,28 +135,34 @@ function orderProduct() {
                             orderQuantity = orderResponse.quantitySelect;
                             var totalPrice = (parseInt(orderQuantity) * productPrice);
                             var orderMessage = "Confirm order of " + orderQuantity + " " + orderChoice + " for a total of $" + totalPrice;
-                            inquirer
-                                .prompt({
-                                    name: "completeOrder",
-                                    type: "list",
-                                    message: "Please select one of the following:",
-                                    choices: [orderMessage, "Start over", "Exit Bamazon"]
-                                }).then(function(confirmationResponse) {
-                                    switch (confirmationResponse.completeOrder) {
-                                        case orderMessage:
-                                            console.log("------ Congratualtions on your order ------");
-                                            console.log("run reduceInventory");
-                                            reduceInventory();
-                                            increaseSales();
-                                            start();
-                                            break;
-                                        case "Start over":
-                                            start();
-                                            break;
-                                        case "Exit Bamazon":
-                                            connection.end();
-                                    }
-                                });
+                            if (orderQuantity <= productQuantity) {
+                                inquirer
+                                    .prompt({
+                                        name: "completeOrder",
+                                        type: "list",
+                                        message: "Please select one of the following:",
+                                        choices: [orderMessage, "Start over", "Exit Bamazon"]
+                                    }).then(function(confirmationResponse) {
+                                        switch (confirmationResponse.completeOrder) {
+                                            case orderMessage:
+                                                console.log("------ Congratualtions on your order ------");
+                                                console.log("run reduceInventory");
+                                                reduceInventory();
+                                                increaseSales();
+                                                start();
+                                                break;
+                                            case "Start over":
+                                                start();
+                                                break;
+                                            case "Exit Bamazon":
+                                                connection.end();
+                                        }
+                                    });
+                            }
+                            else {
+                                console.log("Sorry, there are only " + productQuantity + " left.  Please modify your request");
+                                start();
+                            }
                         });
                 }
                 else {
