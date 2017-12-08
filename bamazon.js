@@ -23,11 +23,13 @@ var status = "";
 var orderChoice = "";
 var orderQuantity;
 var productQuantity;
+var sales;
 
 function reduceInventory() {
-    console.log("reducing quantity by " + orderQuantity + "...\n");
+    //console.log("reducing quantity by " + orderQuantity + "...\n");
     var newQuantity = productQuantity - orderQuantity;
-    console.log("new quantity: " + newQuantity);
+
+    //console.log("new quantity: " + newQuantity);
     var query = "Update products SET ? Where?";
     connection.query(query, [{
                 stock_quantity: newQuantity
@@ -37,8 +39,24 @@ function reduceInventory() {
             }
         ],
         function(err, res) {
-            console.log("products updated!\n");
-            // Call deleteProduct AFTER the UPDATE completes
+            console.log("products updated!");
+
+        });
+}
+
+function increaseSales() {
+    var newSales = parseInt(sales + orderQuantity);
+    console.log("increaseSales, sales: " + sales + " orderQuantity: " + orderQuantity + " new sales: " + newSales);
+    var query = "Update products SET ? Where?";
+    connection.query(query, [{
+                sales: newSales
+            },
+            {
+                product_name: orderChoice
+            }
+        ],
+        function(err, res) {
+            //console.log("products updated!);
 
         });
 }
@@ -71,7 +89,7 @@ function start() {
                                     message: "Select a department:",
                                     choices: departments
                                 }).then(function(response) {
-                                    console.log("this will run displayProductsByCategory()");
+                                    //console.log("this will run displayProductsByCategory()");
                                     departmentChoice = response.departmentSelect;
                                     displayProductsByDepartment();
                                 });
@@ -103,6 +121,7 @@ function orderProduct() {
                 if (res[0].stock_quantity > 0) {
                     var productChoice = res[0].product_name;
                     var productPrice = JSON.stringify(res[0].price);
+                    sales = JSON.stringify(res[0].sales);
                     productQuantity = res[0].stock_quantity;
                     //var productCost = res[0].price;
                     //console.log("Choice: " + productChoice + " Price: " + productPrice + " Cost: " + productCost);
@@ -128,6 +147,7 @@ function orderProduct() {
                                             console.log("------ Congratualtions on your order ------");
                                             console.log("run reduceInventory");
                                             reduceInventory();
+                                            increaseSales();
                                             start();
                                             break;
                                         case "Start over":
